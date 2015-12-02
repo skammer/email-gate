@@ -1,0 +1,9 @@
+{
+ :mail-server {:host "smtp.example.com"
+               :user "jd@example.com"
+               :pass "password"
+               :ssl true
+               }
+ :recepients ["smith@example.com"]
+ :app-server {:port 4000} 
+ }

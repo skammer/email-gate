@@ -8,6 +8,5 @@
                  [ring-cors "0.1.0"]
                  [ring "1.3.2"]
                  [ring/ring-core "1.4.0"]
-                 [com.draines/postal "1.11.3"] ])
-                 
-                  
+                 [com.draines/postal "1.11.3"]
+                 [de.ubercode.clostache/clostache "1.4.0"]])

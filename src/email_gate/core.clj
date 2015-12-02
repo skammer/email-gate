@@ -4,9 +4,8 @@
         ring.middleware.multipart-params)
   (:require
    [org.httpkit.server :refer [run-server]]
-   [postal.core :refer :all]
-   [clojure.string :refer [split-lines split]]
-   [clojure.walk :refer [keywordize-keys]]))
+   [email-gate.email :refer [send-email]]
+   ))
 
 (defn handle-info [req]
   {:status 200 :body "This is not a server you are looking for"})
@@ -18,29 +17,10 @@
 
 (defonce app-server (atom nil))
 
-(defn send-email [target-email data]
-  (let [{:keys [host user pass]} settings
-        {:keys [name idea email file]} (keywordize-keys data)
-        {:keys [tempfile content-type filename]} file]
-
-    (send-message {:host host :user user :pass pass :ssl true}
-                  {:from user
-                   :to target-email
-                   :subject (str "Заявка от " name)
-                   :body [{:type "text/html; charset=utf-8"
-                           :content (str "<p><b>Имя:</b> "   name "</p>"
-                                         "<p><b>Идея:</b> "  idea "</p>"
-                                         "<p><b>Почта:</b> " email "</p>") }
-                          {:type :inline
-                           :content tempfile
-                           :content-type content-type
-                           :file-name filename}]})
-    (println "\nApplication sent form " email " to :" target-email)))
-
 (defn forward-email [req]
   (let [data (:multipart-params req)]
-    (map #(send-email % data) (:recepients settings))
-    {:status 200 :body (:body req)}))
+    (pmap #(send-email % data settings) (:recepients settings))
+    {:status 200 :body "ok"}))
 
 (defn handler [{method :request-method :as req}]
   (case method
@@ -61,6 +41,4 @@
   "The entry-point for 'lein run'"
   [& args]
   (println "\nCreating your server...")
-  (reset! app-server (run-server application
-                                 {:port (:port settings)})))
-
+  (reset! app-server (run-server application (:app-server settings))))
